@@ -16,7 +16,7 @@
       <main class="main">
         <div class="upload">
           <h1 class="upload__title">Upload</h1>
-          <div class="upload__dragarea js-dragarea">
+          <div class="upload__dragarea">
             <form class="upload__form">
               <div class="upload__icon">
                 <svg
@@ -67,7 +67,6 @@
           </div>
           <div class="upload__status">
             <div class="upload__loading">
-              <h3 class="upload__subtitle">Uploading - 3/3 files</h3>
               <div class="progress">
                 <div class="progress__details">
                   <p class="progress__file">your-file-here.PDF</p>
@@ -92,10 +91,10 @@
               </div>
             </div>
 
-            <div class="upload__error js-error-field">
+            <div class="upload__error js-error-field visually-hidden">
               <div class="upload__file upload__file--error">
                 <p class="upload__name">your-file-here.PDF</p>
-                <button type="button" class="btn-reset js-btn-error">
+                <button type="button" class="btn-reset btn-close">
                   <svg
                     width="16"
                     height="16"
@@ -116,11 +115,11 @@
               </p>
             </div>
 
-            <div class="upload__uploaded">
+            <div class="upload__uploaded visually-hidden">
               <h3 class="upload__subtitle">Uploaded</h3>
               <div class="upload__file">
                 <p class="upload__name">your-file-here.PDF</p>
-                <button type="button" class="btn-reset js-btn-error">
+                <button type="button" class="btn-reset btn-error">
                   <svg
                     width="8"
                     height="8"
@@ -150,7 +149,7 @@
 
               <div class="upload__file">
                 <p class="upload__name">your-file-here.PDF</p>
-                <button type="button" class="btn-reset js-btn-error">
+                <button type="button" class="btn-reset btn-error">
                   <svg
                     width="8"
                     height="8"
@@ -182,7 +181,7 @@
           <button type="submit" class="upload__btn btn-reset js-btn">
             Upload Files
           </button>
-          <input class="js-input" type="file" hidden />
+          <input class="input-hidden" type="file" hidden />
         </div>
       </main>
     </div>
