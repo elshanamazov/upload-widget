@@ -91,7 +91,9 @@
   }
 
   &__error {
-    margin-bottom: 30px;
+    &--wrap {
+      margin-bottom: 30px;
+    }
   }
 
   &__file {
@@ -147,6 +149,15 @@
     opacity: 0.5;
     border-radius: 4px;
     color: var(--c-light);
+  }
+
+  &__basket {
+    display: block;
+    transition: transform 0.2s;
+  }
+
+  &__basket:hover {
+    transform: rotate(15deg);
   }
 }
 
