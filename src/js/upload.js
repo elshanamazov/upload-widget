@@ -56,7 +56,6 @@ export function upload(options = {}) {
     uploadTask.on(
       'state_changed',
       (snapshot) => {
-        // Get the progress percentage
         const progress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         const progressBar = document.querySelector('.progress__bar');
@@ -64,7 +63,6 @@ export function upload(options = {}) {
       },
       (error) => {
         console.error('Error uploading file:', error);
-        // Handle any errors that occur during the upload
       },
       () => {
         console.log('File uploaded');
@@ -91,7 +89,7 @@ export function upload(options = {}) {
 				</button>
 			</div>
 			<div class="progress__bg">
-				<div style="width: 10% " class="progress__bar"></div>
+				<div class="progress__bar"></div>
 			</div>
 		</div>`;
 
