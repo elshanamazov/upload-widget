@@ -1,36 +1,10 @@
-import { initializeApp } from 'firebase/app';
 import {
-  getStorage,
+  app,
+  storage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
-} from 'firebase/storage';
-
-const element = (tag, classes = [], content) => {
-  const node = document.createElement(tag);
-
-  if (classes.length) {
-    node.classList.add(...classes);
-  }
-
-  if (content) {
-    node.textContent = content;
-  }
-
-  return node;
-};
-
-const firebaseConfig = {
-  apiKey: 'AIzaSyAFxj1iSgSZMBLu86Lj1cwklRQx-BKs8l8',
-  authDomain: 'fe-upload-f3229.firebaseapp.com',
-  projectId: 'fe-upload-f3229',
-  storageBucket: 'fe-upload-f3229.appspot.com',
-  messagingSenderId: '757466309479',
-  appId: '1:757466309479:web:c94ffa2c7e4c405386c5c2',
-};
-
-const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
+} from './firebase';
 
 export function upload(options = {}) {
   const dragArea = document.querySelector('.upload__dragarea');
@@ -41,7 +15,7 @@ export function upload(options = {}) {
   let file;
   let number = 0;
   const storageRef = ref(storage);
-  const createSubTitle = element('h3', ['upload__subtitle']);
+  const createSubTitle = document.createElement('h3');
 
   btnBrowse.onclick = () => {
     inputHidden.click();
@@ -72,7 +46,7 @@ export function upload(options = {}) {
     uploadLoading.innerHTML += `
 		<div class="progress">
 			<div class="progress__details">
-				<p class="progress__file">${fileName}.PDF</p>
+				<p class="progress__file">${fileName}</p>
 				<button class="btn-reset progress__btn">
 					<svg
 						width="16"
@@ -172,9 +146,6 @@ export function upload(options = {}) {
   dragArea.addEventListener('drop', (e) => {
     e.preventDefault();
     file = e.dataTransfer.files[0];
-    console.log(file);
     fileLoad();
   });
 }
-
-export default app;
