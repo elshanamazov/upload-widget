@@ -2,7 +2,7 @@ import '../scss/style.scss';
 import { upload } from './upload.js';
 
 upload({
-  validFormates: [
+  validFormatas: [
     'image/jpeg',
     'image/png',
     'image/gif',

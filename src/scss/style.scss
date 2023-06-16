@@ -149,6 +149,11 @@
     opacity: 0.5;
     border-radius: 4px;
     color: var(--c-light);
+    transition: background 0.3s ease-in;
+
+    &:hover {
+      background: var(--c-blue-hover);
+    }
   }
 
   &__basket {
