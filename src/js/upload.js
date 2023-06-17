@@ -8,9 +8,9 @@ import {
 } from './firebase';
 
 import {
-  createProgressBar,
-  createErrorMessage,
-  createUploadedHTML,
+  createProgressFile,
+  createErrorFile,
+  createUploadedFile,
 } from './htmlLayouts.js';
 
 export function upload(options = {}) {
@@ -47,7 +47,7 @@ export function upload(options = {}) {
       uploadedFileIds.push(fileName);
       uploadedFiles++;
       uploadLoading.innerHTML += `<h3 class="upload__subtitle"> Uploading - ${uploadedFiles}/3 files </h3>`;
-      uploadLoading.innerHTML += createProgressBar(fileName);
+      uploadLoading.innerHTML += createProgressFile(fileName);
     });
 
     return uploadLoading;
@@ -73,13 +73,20 @@ export function upload(options = {}) {
             progressBar.forEach((e) => {
               e.style.width = progress + '%';
             });
+
+            if (progress === 100) {
+              uploadLoading.innerHTML = '';
+            }
           },
           (error) => {
             console.log(error);
           },
           async () => {
             const fileURL = await getDownloadURL(uploadTask.snapshot.ref);
-            uploadUploaded.innerHTML += createUploadedHTML(fileName, fileURL);
+            return (uploadUploaded.innerHTML += createUploadedFile(
+              fileName,
+              fileURL
+            ));
           }
         );
       } else {
