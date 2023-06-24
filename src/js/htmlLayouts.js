@@ -27,7 +27,7 @@ export function createErrorFile(fileName) {
   return `<div class="upload__error--wrap">
 		<div class="upload__file upload__file--error">
 			<p class="upload__name">${fileName}</p>
-			<button type="button" class="btn-reset btn-close">
+			<button type="button" class="btn-reset btn-close" id="${fileName}">
 				<svg
 					width="16"
 					height="16"

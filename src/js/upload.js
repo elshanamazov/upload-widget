@@ -29,70 +29,86 @@ export function upload(options = {}) {
 
   function loadingFile() {
     if (totalFiles > 3) {
+      filesToUpload.pop();
       return;
     }
 
     filesToUpload.forEach((file) => {
-      let fileName = file.name;
-      let fileType = file.type;
+      let fileName = file[0].name;
+      let fileType = file[0].type;
+
       if (!options.validFormatas.includes(fileType)) {
-        uploadErrorField.innerHTML = createErrorMessage(fileName);
-        return;
+        uploadErrorField.innerHTML = createErrorFile(fileName);
+      } else {
+        if (!uploadedFileIds.includes(fileName)) {
+          uploadedFileIds.push(fileName);
+          uploadedFiles++;
+          uploadLoading.innerHTML += `<h3 class="upload__subtitle"> Uploading - ${uploadedFiles}/3 files </h3>`;
+          uploadLoading.innerHTML += createProgressFile(fileName);
+        }
       }
-
-      if (uploadedFileIds.includes(fileName)) {
-        return;
-      }
-
-      uploadedFileIds.push(fileName);
-      uploadedFiles++;
-      uploadLoading.innerHTML += `<h3 class="upload__subtitle"> Uploading - ${uploadedFiles}/3 files </h3>`;
-      uploadLoading.innerHTML += createProgressFile(fileName);
     });
-
-    return uploadLoading;
   }
 
   function uploadToStorage() {
-    filesToUpload.forEach((file) => {
-      let fileName = file.name;
-      let fileType = file.type;
+    if (document.querySelector('.upload__error--wrap')) {
+      // выводим куда-то ошибку что нельзя зягрузить ошибочный файл и нужно его удалить
+      console.log('Please delete error file');
+    } else {
+      filesToUpload.forEach((file) => {
+        let fileName = file[0].name;
+        let fileType = file[0].type;
 
-      const fileRef = ref(storageRef, `files/${fileName}`);
+        const fileRef = ref(storageRef, `files/${fileName}`);
 
-      if (options.validFormatas.includes(fileType)) {
-        const uploadTask = uploadBytesResumable(fileRef, file);
+        const closeButton = document.querySelector('.btn-close');
 
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            const progressBar = document.querySelectorAll('.progress__bar');
+        if (closeButton) {
+          closeButton.addEventListener('click', () => {
+            // находим этот файл в массиве
+            const errorFile = filesToUpload.find(
+              (file) => file[0].name === closeButton.getAttribute('id')
+            );
 
-            progressBar.forEach((e) => {
-              e.style.width = progress + '%';
-            });
+            console.log(errorFile); // здесь вместо вывода нужно удалить этот файл из массива filesToUpload и из разметки
+          });
+        }
 
-            if (progress === 100) {
-              uploadLoading.innerHTML = '';
+        if (options.validFormatas.includes(fileType)) {
+          const uploadTask = uploadBytesResumable(fileRef, file);
+
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              const progressBar = document.querySelectorAll('.progress__bar');
+
+              progressBar.forEach((e) => {
+                e.style.width = progress + '%';
+              });
+
+              if (progress === 100) {
+                uploadLoading.innerHTML = '';
+              }
+            },
+            (error) => {
+              console.log(error);
+            },
+            async () => {
+              const fileURL = await getDownloadURL(uploadTask.snapshot.ref);
+              // здесь еще хорошо бы удалить файлы из незагруженных
+              return (uploadUploaded.innerHTML += createUploadedFile(
+                fileName,
+                fileURL
+              ));
             }
-          },
-          (error) => {
-            console.log(error);
-          },
-          async () => {
-            const fileURL = await getDownloadURL(uploadTask.snapshot.ref);
-            return (uploadUploaded.innerHTML += createUploadedFile(
-              fileName,
-              fileURL
-            ));
-          }
-        );
-      } else {
-        return;
-      }
-    });
+          );
+        } else {
+          return;
+        }
+      });
+    }
   }
 
   browseArea.onclick = () => {
@@ -102,7 +118,7 @@ export function upload(options = {}) {
   inputHidden.addEventListener('change', (e) => {
     const newFiles = Array.from(e.target.files);
     totalFiles += newFiles.length;
-    filesToUpload = newFiles;
+    filesToUpload.push(newFiles);
     loadingFile();
   });
 
@@ -119,7 +135,7 @@ export function upload(options = {}) {
     e.preventDefault();
     const newFiles = Array.from(e.dataTransfer.files);
     totalFiles += newFiles.length;
-    filesToUpload = newFiles;
+    filesToUpload.push(newFiles);
     loadingFile();
   });
 
