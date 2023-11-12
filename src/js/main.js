@@ -61,7 +61,7 @@ const loadingCounter = (files) => {
 const deleteFiles = (element, files) => {
   element.addEventListener('click', (event) => {
     if (event.target.tagName.toLowerCase() === 'button') {
-      const progressElement = event.target.closest('.upload__status');
+      const progressElement = event.target.closest('.progress');
       if (progressElement) {
         const fileName =
           progressElement.querySelector('.progress__file').textContent;
@@ -97,8 +97,7 @@ const uploadToStorage = (files) => {
 
     return !isUploaded;
   });
-  console.log(uploadUploaded);
-  deleteFiles(uploadUploaded, files);
+  console.log(uploadedFiles);
   loadingCounter(files);
 };
 
@@ -110,6 +109,7 @@ fileUploadArea.addEventListener('click', () => {
 });
 
 inputHidden.addEventListener('change', loadingFilesHandler);
+
 fileUploadArea.addEventListener('drop', loadingFilesHandler);
 
 fileUploadArea.addEventListener('dragover', (e) => {
