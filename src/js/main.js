@@ -67,7 +67,6 @@ const deleteFiles = (element, files) => {
           progressElement.querySelector('.progress__file').textContent;
         progressElement.remove();
         files = files.filter((file) => file.name !== fileName);
-        console.log('Files after deletion:', files);
         loadingCounter(files);
       }
     }
