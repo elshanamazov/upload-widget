@@ -1,16 +1,14 @@
 :root {
   // base
   --font-family: 'Mulish', sans-serif;
-  --content-width: 1280px;
-  --container-offset: 40px;
-  --container-width: calc(var(--content-width) + (var(--container-offset) * 2));
   // colors
   --c-green: #11af22;
-  --с-red: #e41d1d;
+  --c-red: #e41d1d;
   --c-dark: #0f0f0f;
   --c-light: #ffffff;
   --c-grey: #676767;
-  --c-ghost-white: #f8f8ff;
+  --c-ghost-white: #f0f0ff;
+  --c-light-grey: #e6e6e6;
   --c-blue: #483ea8;
   --c-blue-hover: #4836ea;
 }

@@ -3,6 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/favicon/favicon-16x16.png"
+    />
+    <link rel="manifest" href="favicon/site.webmanifest" />
+    <link
+      rel="mask-icon"
+      href="favicon/safari-pinned-tab.svg"
+      color="#5bbad5"
+    />
+    <meta name="msapplication-TileColor" content="#da532c" />
+    <meta name="theme-color" content="#ffffff" />
     <title>Simple Upload File</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,14 +36,16 @@
       rel="stylesheet"
     />
   </head>
+
   <body>
     <div id="app">
       <main class="main">
+        <div class="message" id="errorMessage"></div>
         <div class="upload">
           <h1 class="upload__title">Upload</h1>
-          <div class="upload__dragarea">
-            <input class="input-hidden" type="file" hidden />
-            <form class="upload__form">
+          <div class="upload__area">
+            <input class="input-hidden" type="file" />
+            <div class="upload__content">
               <div class="upload__icon">
                 <svg
                   width="69"
@@ -57,18 +84,17 @@
                   />
                 </svg>
               </div>
-              <p class="upload__dragdrop">
+              <p class="upload__caption">
                 Drag &amp; drop files or
-                <span class="upload__dragdrop--textblue">Browse</span>
+                <span class="upload__caption--textblue">Browse</span>
               </p>
               <p class="upload__desc">
-                Supported formates: JPEG, PNG, GIF, PDF, TXT, Word
+                Supported formats: JPEG, PNG, GIF, PDF, TXT, Word
               </p>
-            </form>
+            </div>
           </div>
           <div class="upload__status">
             <div class="upload__loading"></div>
-            <div class="upload__error"></div>
             <div class="upload__uploaded"></div>
           </div>
           <button type="submit" class="upload__btn btn-reset">
