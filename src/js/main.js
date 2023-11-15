@@ -10,11 +10,11 @@ import {
 
 const inputHidden = document.querySelector('.input-hidden');
 const fileUploadArea = document.querySelector('.upload__area');
+const uploadingStatus = document.querySelector('.upload__status');
 const uploadLoading = document.querySelector('.upload__loading');
 const uploadUploaded = document.querySelector('.upload__uploaded');
 const uploadBtn = document.querySelector('.upload__btn');
 let filesToUpload = [];
-let uploadedFiles = [];
 
 const loadingFilesHandler = (event) => {
   event.preventDefault();
@@ -26,7 +26,11 @@ const loadingFilesHandler = (event) => {
     if (
       !filesToUpload.some((existingFile) => existingFile.name === file.name)
     ) {
-      filesToUpload.push(file);
+      filesToUpload.push({
+        name: file.name,
+        type: file.type,
+        status: 'loading',
+      });
     } else {
       return errorMessage('You have already added this file');
     }
@@ -45,10 +49,10 @@ const loadingFile = (files) => {
   files.forEach((file) => {
     const fileName = file.name;
     const fileType = file.type;
+
     uploadLoading.innerHTML += createProgressFile(fileName, fileType);
   });
   loadingCounter(files);
-  deleteFiles(uploadLoading, files, 'progress');
 };
 
 const loadingCounter = (files) => {
@@ -59,25 +63,23 @@ const loadingCounter = (files) => {
     : uploadSubtitle.remove();
 };
 
-const deleteFiles = (element, files, elementClass) => {
-  element.addEventListener('click', (event) => {
-    if (event.target.tagName.toLowerCase() === 'button') {
-      const targetElement = event.target.closest(`.${elementClass}`);
-      if (targetElement) {
-        const fileNameElement = targetElement.querySelector(
-          `.${elementClass}__name`
-        );
+const handleFileDelete = (event) => {
+  if (event.target.tagName.toLowerCase() === 'button') {
+    const targetElement = event.target.closest('.upload__file, .progress');
+    if (targetElement) {
+      const fileNameElement = targetElement.querySelector(
+        '.upload__file__name, .progress__name'
+      );
+      const fileName = fileNameElement.innerHTML;
 
-        const fileName = fileNameElement.innerHTML;
-        if (fileName) {
-          targetElement.remove();
-          files = files.filter((file) => file.name !== fileName);
-          filesToUpload = files;
-          loadingCounter(filesToUpload);
-        }
+      targetElement.remove();
+
+      if (fileName) {
+        filesToUpload = filesToUpload.filter((file) => file.name !== fileName);
+        loadingCounter(filesToUpload);
       }
     }
-  });
+  }
 };
 
 const uploadToStorage = (files) => {
@@ -89,7 +91,7 @@ const uploadToStorage = (files) => {
     const fileType = file.type;
 
     progressElements.forEach((el) => {
-      if (!validFormatas.includes(el.dataset.type)) {
+      if (!validFormatas.includes(fileType)) {
         el.classList.add('_error');
       } else {
         if (el.dataset.type === fileType) {
@@ -102,7 +104,6 @@ const uploadToStorage = (files) => {
   });
 
   loadingCounter(files);
-  deleteFiles(uploadUploaded, files, 'upload__file');
 };
 
 //Handlers
@@ -112,10 +113,6 @@ fileUploadArea.addEventListener('click', () => {
   inputHidden.value = '';
 });
 
-inputHidden.addEventListener('change', loadingFilesHandler);
-
-fileUploadArea.addEventListener('drop', loadingFilesHandler);
-
 fileUploadArea.addEventListener('dragover', (e) => {
   e.preventDefault();
   fileUploadArea.classList.add('_active');
@@ -124,6 +121,12 @@ fileUploadArea.addEventListener('dragover', (e) => {
 fileUploadArea.addEventListener('dragleave', () => {
   fileUploadArea.classList.remove('_active');
 });
+
+inputHidden.addEventListener('change', loadingFilesHandler);
+
+fileUploadArea.addEventListener('drop', loadingFilesHandler);
+
+uploadingStatus.addEventListener('click', handleFileDelete);
 
 uploadBtn.addEventListener('click', () => {
   if (filesToUpload.length > 0) {
