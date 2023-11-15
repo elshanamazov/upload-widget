@@ -77,7 +77,7 @@ export function createSubtitle(parentElement) {
   if (!uploadSubtitle) {
     uploadSubtitle = document.createElement('h3');
     uploadSubtitle.className = 'upload__subtitle';
-    parentElement.appendChild(uploadSubtitle);
+    parentElement.insertBefore(uploadSubtitle, parentElement.firstChild);
   }
 
   return uploadSubtitle;

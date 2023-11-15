@@ -15,8 +15,7 @@ const uploadUploaded = document.querySelector('.upload__uploaded');
 const uploadBtn = document.querySelector('.upload__btn');
 let filesToUpload = [];
 let uploadedFiles = [];
-const name = document.querySelector('.upload__name');
-console.log(name);
+
 const loadingFilesHandler = (event) => {
   event.preventDefault();
   const newfiles = Array.from(
@@ -42,19 +41,19 @@ const loadingFile = (files) => {
     errorMessage('You can only upload 3 files at a time');
     return;
   }
-  loadingCounter(files);
 
   files.forEach((file) => {
     const fileName = file.name;
     const fileType = file.type;
     uploadLoading.innerHTML += createProgressFile(fileName, fileType);
   });
-
+  loadingCounter(files);
   deleteFiles(uploadLoading, files, 'progress');
 };
 
 const loadingCounter = (files) => {
   const uploadSubtitle = createSubtitle(uploadLoading);
+
   files.length
     ? (uploadSubtitle.innerHTML = `Uploading - ${files.length}/${UPLOAD_LIMIT} files`)
     : uploadSubtitle.remove();
@@ -68,7 +67,7 @@ const deleteFiles = (element, files, elementClass) => {
         const fileNameElement = targetElement.querySelector(
           `.${elementClass}__name`
         );
-        console.log(fileNameElement);
+
         const fileName = fileNameElement.innerHTML;
         if (fileName) {
           targetElement.remove();
@@ -80,25 +79,6 @@ const deleteFiles = (element, files, elementClass) => {
     }
   });
 };
-
-// const deleteFiles = (element, files, elementClass) => {
-//   element.addEventListener('click', (event) => {
-//     if (event.target.tagName.toLowerCase() === 'button') {
-//       const progressElement = event.target.closest('.progress');
-//       const uploadedFileElement = event.target.closest('.upload__file');
-
-//       if (progressElement || uploadedFileElement) {
-//         const fileName = (progressElement || uploadedFileElement).querySelector(
-//           '.progress__file'
-//         ).textContent;
-//         (progressElement || uploadedFileElement).remove();
-//         files = files.filter((file) => file.name !== fileName);
-//         filesToUpload = files;
-//         loadingCounter(filesToUpload);
-//       }
-//     }
-//   });
-// };
 
 const uploadToStorage = (files) => {
   const progressElements = document.querySelectorAll('.progress');
@@ -114,7 +94,6 @@ const uploadToStorage = (files) => {
       } else {
         if (el.dataset.type === fileType) {
           el.remove();
-          uploadedFiles.push(file);
           uploadedSubtitle.textContent = 'Uploaded';
           uploadUploaded.innerHTML += createUploadedFile(fileName);
         }
@@ -122,8 +101,6 @@ const uploadToStorage = (files) => {
     });
   });
 
-  console.log(files);
-  console.log(uploadedFiles);
   loadingCounter(files);
   deleteFiles(uploadUploaded, files, 'upload__file');
 };
