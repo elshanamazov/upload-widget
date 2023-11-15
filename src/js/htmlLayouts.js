@@ -1,13 +1,12 @@
 export function createProgressFile(fileName, fileType) {
   const existingElement = document.getElementById(`progress-${fileName}`);
-
   if (existingElement) {
     return '';
   }
   return `<div class="progress" data-type="${fileType}">
     <div class="progress__details">
-      <p class="progress__file" id="progress-${fileName}">${fileName}</p>
-      <button class="progress__btn btn-reset btn-close" id="${fileName}">
+      <p class="progress__name" id="progress-${fileName}">${fileName}</p>
+      <button type="button" class="progress__btn btn-reset btn-close" id="${fileName}">
         <svg
           width="16"
           height="16"
@@ -41,7 +40,7 @@ export function createUploadedFile(fileName, url = '#') {
 
   return `
 			<div class="upload__file">
-				<a href="${url}" target="_blank"> <p class="upload__name" id="progress-${fileName}">${fileName}</p>	</a>
+				<a href="${url}" target="_blank"> <p class="upload__file__name" id="progress-${fileName}">${fileName}</p>	</a>
 				<button type="button" class="btn-reset upload__basket btn-close">
 					<svg
 						width="8"

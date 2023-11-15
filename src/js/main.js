@@ -15,7 +15,8 @@ const uploadUploaded = document.querySelector('.upload__uploaded');
 const uploadBtn = document.querySelector('.upload__btn');
 let filesToUpload = [];
 let uploadedFiles = [];
-
+const name = document.querySelector('.upload__name');
+console.log(name);
 const loadingFilesHandler = (event) => {
   event.preventDefault();
   const newfiles = Array.from(
@@ -38,7 +39,8 @@ const loadingFilesHandler = (event) => {
 const loadingFile = (files) => {
   if (files.length > UPLOAD_LIMIT) {
     files.pop();
-    return errorMessage('You can only upload 3 files at a time');
+    errorMessage('You can only upload 3 files at a time');
+    return;
   }
   loadingCounter(files);
 
@@ -48,7 +50,7 @@ const loadingFile = (files) => {
     uploadLoading.innerHTML += createProgressFile(fileName, fileType);
   });
 
-  deleteFiles(uploadLoading, files);
+  deleteFiles(uploadLoading, files, 'progress');
 };
 
 const loadingCounter = (files) => {
@@ -58,47 +60,72 @@ const loadingCounter = (files) => {
     : uploadSubtitle.remove();
 };
 
-const deleteFiles = (element, files) => {
+const deleteFiles = (element, files, elementClass) => {
   element.addEventListener('click', (event) => {
     if (event.target.tagName.toLowerCase() === 'button') {
-      const progressElement = event.target.closest('.progress');
-      if (progressElement) {
-        const fileName =
-          progressElement.querySelector('.progress__file').textContent;
-        progressElement.remove();
-        files = files.filter((file) => file.name !== fileName);
-        loadingCounter(files);
+      const targetElement = event.target.closest(`.${elementClass}`);
+      if (targetElement) {
+        const fileNameElement = targetElement.querySelector(
+          `.${elementClass}__name`
+        );
+        console.log(fileNameElement);
+        const fileName = fileNameElement.innerHTML;
+        if (fileName) {
+          targetElement.remove();
+          files = files.filter((file) => file.name !== fileName);
+          filesToUpload = files;
+          loadingCounter(filesToUpload);
+        }
       }
     }
   });
 };
 
+// const deleteFiles = (element, files, elementClass) => {
+//   element.addEventListener('click', (event) => {
+//     if (event.target.tagName.toLowerCase() === 'button') {
+//       const progressElement = event.target.closest('.progress');
+//       const uploadedFileElement = event.target.closest('.upload__file');
+
+//       if (progressElement || uploadedFileElement) {
+//         const fileName = (progressElement || uploadedFileElement).querySelector(
+//           '.progress__file'
+//         ).textContent;
+//         (progressElement || uploadedFileElement).remove();
+//         files = files.filter((file) => file.name !== fileName);
+//         filesToUpload = files;
+//         loadingCounter(filesToUpload);
+//       }
+//     }
+//   });
+// };
+
 const uploadToStorage = (files) => {
   const progressElements = document.querySelectorAll('.progress');
   const uploadedSubtitle = createSubtitle(uploadUploaded);
 
-  files = files.filter((file) => {
+  files.forEach((file) => {
     const fileName = file.name;
     const fileType = file.type;
-    let isUploaded = false;
+
     progressElements.forEach((el) => {
       if (!validFormatas.includes(el.dataset.type)) {
         el.classList.add('_error');
       } else {
         if (el.dataset.type === fileType) {
           el.remove();
-          isUploaded = true;
           uploadedFiles.push(file);
           uploadedSubtitle.textContent = 'Uploaded';
           uploadUploaded.innerHTML += createUploadedFile(fileName);
         }
       }
     });
-
-    return !isUploaded;
   });
+
+  console.log(files);
   console.log(uploadedFiles);
   loadingCounter(files);
+  deleteFiles(uploadUploaded, files, 'upload__file');
 };
 
 //Handlers
