@@ -38,12 +38,10 @@ const loadingFilesHandler = (event) => {
 
 const handleFileDelete = (event) => {
   if (event.target.tagName.toLowerCase() === 'button') {
-    const targetElement = event.target.closest('.upload__file, .progress');
+    const targetElement = event.target.closest('.upload__progress');
     if (targetElement) {
-      const fileNameElement = targetElement.querySelector(
-        '.upload__file__name, .progress__name'
-      );
-      const fileName = fileNameElement.innerHTML;
+      const fileNameElement = targetElement.querySelector('.progress__name');
+      const fileName = fileNameElement.innerText;
 
       targetElement.remove();
 
@@ -81,7 +79,7 @@ const loadingCounter = (files) => {
 
 const uploadToStorage = async (files) => {
   const progressElements = document.querySelectorAll('.progress');
-  // const uploadedSubtitle = createSubtitle(uploadUploaded);
+  const uploadedSubtitle = createSubtitle(uploadUploaded);
   for (const file of files) {
     const fileName = file.name;
     const fileType = file.type;
@@ -107,7 +105,7 @@ const uploadToStorage = async (files) => {
 
               if (percentProgress === 100) {
                 el.remove();
-                // uploadedSubtitle.innerHTML = 'Uploaded';
+                uploadedSubtitle.innerHTML = 'Uploaded';
               }
             },
             (error) => {
