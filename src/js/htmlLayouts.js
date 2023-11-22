@@ -1,4 +1,6 @@
-export function createProgressFile(fileName, fileType) {
+import { element } from './utils.js';
+
+export function createFileProgressEl(fileName, fileType) {
   const existingElement = document.getElementById(`progress-${fileName}`);
   if (existingElement) {
     return '';
@@ -38,7 +40,7 @@ export function createProgressFile(fileName, fileType) {
       `;
 }
 
-export function createUploadedFile(fileName, url = '#') {
+export function createFileProgressUploadedEl(fileName, url = '#') {
   const existingElement = document.getElementById(`progress-${fileName}`);
 
   if (existingElement) {
@@ -87,7 +89,7 @@ export function createUploadedFile(fileName, url = '#') {
 	`;
 }
 
-export function createSubtitle(parentElement) {
+export function createProgressSubtitleEl(parentElement) {
   let uploadSubtitle = parentElement.querySelector('.upload__subtitle');
 
   if (!uploadSubtitle) {
@@ -99,14 +101,19 @@ export function createSubtitle(parentElement) {
   return uploadSubtitle;
 }
 
-export const errorMessage = (msgText) => {
-  const errorMessage = document.getElementById('errorMessage');
-  errorMessage.style.display = 'block';
-  errorMessage.innerHTML = msgText;
+export const errorMessageAlert = (msgText) => {
+  const mainNode = document.querySelector('.main');
+  const existingAlert = mainNode.querySelector('.alert-message');
 
-  setTimeout(() => {
-    errorMessage.style.display = 'none';
-  }, 3000);
+  if (existingAlert) {
+    existingAlert.textContent = msgText;
+  } else {
+    const alertMessageNode = element('div', ['alert-message']);
+    mainNode.appendChild(alertMessageNode);
+    alertMessageNode.textContent = msgText;
 
-  return errorMessage;
+    setTimeout(() => {
+      alertMessageNode.remove();
+    }, 3000);
+  }
 };

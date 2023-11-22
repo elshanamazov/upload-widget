@@ -40,11 +40,10 @@
   <body>
     <div id="app">
       <main class="main">
-        <div class="message" id="errorMessage"></div>
         <div class="upload">
           <h1 class="upload__title">Upload</h1>
           <div class="upload__area">
-            <input class="input-hidden" type="file" />
+            <input id="file" class="input-hidden" type="file" />
             <div class="upload__content">
               <div class="upload__icon">
                 <svg
@@ -84,18 +83,14 @@
                   />
                 </svg>
               </div>
-              <p class="upload__caption">
+              <h3 class="upload__caption">
                 Drag &amp; drop files or
                 <span class="upload__caption--textblue">Browse</span>
-              </p>
+              </h3>
               <p class="upload__desc">
                 Supported formats: JPEG, PNG, GIF, PDF, TXT, Word
               </p>
             </div>
-          </div>
-          <div class="upload__status">
-            <div class="upload__loading"></div>
-            <div class="upload__uploaded"></div>
           </div>
           <button type="submit" class="upload__btn btn-reset">
             Upload Files
