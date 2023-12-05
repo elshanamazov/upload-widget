@@ -6,7 +6,7 @@ export function createFileProgressEl(fileName, fileType) {
     return '';
   }
   return `
-            <div class="upload__progress progress" data-type="${fileType}">
+            <div id="${fileName}" class="upload__progress progress" data-type="${fileType}">
             <div class="progress__details">
               <span class="progress__name" id="progress-${fileName}">
                 ${fileName}

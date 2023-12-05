@@ -1,4 +1,4 @@
-import { getDownloadURL } from './firebase';
+import { getDownloadURL } from 'firebase/storage';
 import {
   createFileProgressEl,
   createFileProgressUploadedEl,
@@ -21,7 +21,7 @@ export function upload(selector, options = {}) {
     inputHidden.value = '';
   };
 
-  const initUploadElements = () => {
+  const initializeUploadElements = () => {
     const uploadStatus = element('div', ['upload__status']);
     fileUploadArea.insertAdjacentElement('afterend', uploadStatus);
 
@@ -32,19 +32,11 @@ export function upload(selector, options = {}) {
     uploadStatus.appendChild(uploadUploaded);
   };
 
-  const removeUploadElements = () => {
-    const uploadStatus = document.querySelector('.upload__status');
-    if (uploadStatus) {
-      uploadStatus.remove();
-      initialized = false;
-    }
-  };
-
   const loadFilesHandler = (event) => {
     event.preventDefault();
 
     if (!initialized) {
-      initUploadElements();
+      initializeUploadElements();
       initialized = true;
     }
 
@@ -82,7 +74,7 @@ export function upload(selector, options = {}) {
 
     files.length
       ? (uploadSubtitle.innerHTML = `Uploading - ${files.length}/${options.limit} files`)
-      : removeUploadElements();
+      : removeUploadStatus();
   };
 
   const fileDeleteHandler = (event) => {
@@ -104,45 +96,52 @@ export function upload(selector, options = {}) {
 
   const displayUploadedFile = async (uploadTask, fileName, fileType) => {
     const uploadUploaded = document.querySelector('.upload__uploaded');
-    const progressElements = document.querySelectorAll('.progress');
+    const progressElement = document.getElementById(`${fileName}`);
     const uploadedSubtitle = createProgressSubtitleEl(uploadUploaded);
 
-    for (const el of progressElements) {
-      if (!options.accept.includes(fileType)) {
-        uploadTask.cancel();
-        el.classList.add('_error');
-        break;
-      }
+    if (!progressElement) {
+      return;
+    }
 
-      if (el.dataset.type === fileType) {
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progressBars = document.querySelectorAll('.progress__bar');
-            const percentProgress = Math.floor(
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            );
-            progressBars.forEach((progressBar) => {
-              progressBar.style.width = percentProgress + '%';
-            });
-            if (percentProgress === 100) {
-              el.remove();
-              uploadedSubtitle.innerHTML = 'Uploaded';
-            }
-          },
-          (error) => {
-            console.log(error);
-          },
-          async () => {
-            const fileURL = await getDownloadURL(uploadTask.snapshot.ref);
-            uploadUploaded.innerHTML += createFileProgressUploadedEl(
-              fileName,
-              fileURL
-            );
-          }
+    if (!options.accept.includes(fileType)) {
+      uploadTask.cancel();
+      progressElement.classList.add('_error');
+      return;
+    }
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progressBars = progressElement.querySelectorAll('.progress__bar');
+        const percentProgress = Math.floor(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         );
-        continue;
+        progressBars.forEach((progressBar) => {
+          progressBar.style.width = percentProgress + '%';
+        });
+        if (percentProgress === 100) {
+          progressElement.remove();
+          uploadedSubtitle.textContent = 'Uploaded';
+        }
+      },
+      (error) => {
+        console.log(error);
+      },
+      async () => {
+        const fileURL = await getDownloadURL(uploadTask.snapshot.ref);
+        uploadUploaded.innerHTML += createFileProgressUploadedEl(
+          fileName,
+          fileURL
+        );
       }
+    );
+  };
+
+  const removeUploadStatus = () => {
+    const uploadStatus = document.querySelector('.upload__status');
+    if (uploadStatus) {
+      uploadStatus.remove();
+      initialized = false;
     }
   };
 
