@@ -1,5 +1,6 @@
 import '../scss/style.scss';
-import { ref, storage, uploadBytesResumable } from './firebase';
+import { createProgressSubtitleEl } from './elementsUI';
+import { firebaseUpload } from './firebase';
 import { upload } from './upload';
 
 upload('#file', {
@@ -12,13 +13,31 @@ upload('#file', {
     'application/msword',
     'text/plain',
   ],
-  onUpload(files, cb) {
-    files.forEach((file) => {
-      const fileName = file.name;
-      const fileType = file.type;
-      const fileRef = ref(storage, `files/${fileName}`);
-      const uploadTask = uploadBytesResumable(fileRef, file);
-      cb(uploadTask, fileName, fileType);
+  fileUploadTasks: {},
+  onUpload(files, fileUploadCallback) {
+    files.forEach(async (file) => {
+      const { name, type } = file;
+
+      const uploadUploaded = document.querySelector('.upload__uploaded');
+      const progressElement = document.getElementById(`${name}`);
+      const uploadedSubtitle = createProgressSubtitleEl(uploadUploaded);
+
+      if (!this.fileUploadTasks[name]) {
+        const uploadTask = firebaseUpload(file);
+        this.fileUploadTasks[name] = { uploadTask };
+      } else {
+        return;
+      }
+
+      const fileInfo = {
+        name,
+        type,
+        progressElement,
+        uploadedSubtitle,
+        uploadUploaded,
+      };
+
+      fileUploadCallback(fileInfo);
     });
   },
 });

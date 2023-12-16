@@ -1,10 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from 'firebase/storage';
+import { getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAFxj1iSgSZMBLu86Lj1cwklRQx-BKs8l8',
@@ -18,4 +13,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
-export { app, getDownloadURL, ref, storage, uploadBytesResumable };
+export const firebaseUpload = (file) => {
+  const storageRef = ref(storage, `uploads/${file.name}`);
+  const uploadTask = uploadBytesResumable(storageRef, file);
+
+  return uploadTask;
+};

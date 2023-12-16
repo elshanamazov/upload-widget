@@ -1,4 +1,4 @@
-export const element = (tag, classes = [], content) => {
+export const createElement = (tag, classes = [], content) => {
   const node = document.createElement(tag);
 
   if (classes.length) {

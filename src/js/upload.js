@@ -1,11 +1,11 @@
-import { getDownloadURL } from 'firebase/storage';
 import {
   createFileProgressEl,
-  createFileProgressUploadedEl,
   createProgressSubtitleEl,
   errorMessageAlert,
-} from './htmlLayouts';
-import { element } from './utils';
+  initializeUploadStatusElements,
+  standardProgressBar,
+  uploadedFileProgressBar,
+} from './elementsUI';
 
 export function upload(selector, options = {}) {
   const inputHidden = document.querySelector(selector);
@@ -14,31 +14,16 @@ export function upload(selector, options = {}) {
   const uploadBtn = document.querySelector('.upload__btn');
 
   let files = [];
-  let initialized = false;
 
   const inputHiddenTrigger = () => {
     inputHidden.click();
     inputHidden.value = '';
   };
 
-  const initializeUploadElements = () => {
-    const uploadStatus = element('div', ['upload__status']);
-    fileUploadArea.insertAdjacentElement('afterend', uploadStatus);
-
-    const uploadLoad = element('div', ['upload__loading']);
-    uploadStatus.appendChild(uploadLoad);
-
-    const uploadUploaded = element('div', ['upload__uploaded']);
-    uploadStatus.appendChild(uploadUploaded);
-  };
-
   const loadFilesHandler = (event) => {
     event.preventDefault();
 
-    if (!initialized) {
-      initializeUploadElements();
-      initialized = true;
-    }
+    initializeUploadStatusElements(fileUploadArea);
 
     const newFiles = Array.from(
       event.dataTransfer?.files ?? event.target?.files ?? []
@@ -52,6 +37,10 @@ export function upload(selector, options = {}) {
 
   const displayLoadFile = () => {
     const uploadLoad = document.querySelector('.upload__loading');
+    if (!uploadLoad) return;
+
+    const fragment = document.createDocumentFragment();
+
     if (files.length > options.limit) {
       files.pop();
       errorMessageAlert('You can only upload 3 files at a time');
@@ -59,11 +48,13 @@ export function upload(selector, options = {}) {
     }
 
     files.forEach((file) => {
-      const fileName = file.name;
-      const fileType = file.type;
-
-      uploadLoad.innerHTML += createFileProgressEl(fileName, fileType);
+      const fileElement = createFileProgressEl(file.name, standardProgressBar);
+      if (fileElement) {
+        fragment.appendChild(fileElement);
+      }
     });
+
+    uploadLoad.appendChild(fragment);
 
     loadFilesCounter();
   };
@@ -77,45 +68,51 @@ export function upload(selector, options = {}) {
       : removeUploadStatus();
   };
 
-  const fileDeleteHandler = (event) => {
-    if (event.target.tagName.toLowerCase() === 'button') {
-      const targetElement = event.target.closest('.upload__progress');
-      if (targetElement) {
-        const fileNameElement = targetElement.querySelector('.progress__name');
-        const fileName = fileNameElement.innerText;
+  const fileDeleteHandler = async (target) => {
+    const targetElement = target.closest('.upload__progress');
+    if (!targetElement) return;
 
-        targetElement.remove();
+    const fileName = targetElement.id;
+    if (!fileName) return;
 
-        if (fileName) {
-          files = files.filter((file) => file.name !== fileName);
-          loadFilesCounter();
-        }
+    try {
+      targetElement.remove();
+      if (options.accept && options.fileUploadTasks[fileName]) {
+        await options.fileUploadTasks[fileName].uploadTask.cancel();
       }
+      files = files.filter((file) => file.name !== fileName);
+      loadFilesCounter();
+    } catch (error) {
+      console.error('Error during file deletion:', error);
     }
   };
 
-  const displayUploadedFile = async (uploadTask, fileName, fileType) => {
-    const uploadUploaded = document.querySelector('.upload__uploaded');
-    const progressElement = document.getElementById(`${fileName}`);
-    const uploadedSubtitle = createProgressSubtitleEl(uploadUploaded);
-
+  const manageUploadTaskAndDisplay = async ({
+    progressElement,
+    uploadedSubtitle,
+    name,
+    type,
+    uploadUploaded,
+  }) => {
     if (!progressElement) {
       return;
     }
 
-    if (!options.accept.includes(fileType)) {
-      uploadTask.cancel();
+    if (!options.accept.includes(type)) {
+      options.fileUploadTasks[name].uploadTask.cancel();
       progressElement.classList.add('_error');
       return;
     }
 
-    uploadTask.on(
+    options.fileUploadTasks[name].uploadTask.on(
       'state_changed',
       (snapshot) => {
         const progressBars = progressElement.querySelectorAll('.progress__bar');
+
         const percentProgress = Math.floor(
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100
         );
+
         progressBars.forEach((progressBar) => {
           progressBar.style.width = percentProgress + '%';
         });
@@ -128,10 +125,14 @@ export function upload(selector, options = {}) {
         console.log(error);
       },
       async () => {
-        const fileURL = await getDownloadURL(uploadTask.snapshot.ref);
-        uploadUploaded.innerHTML += createFileProgressUploadedEl(
-          fileName,
-          fileURL
+        const fileURL = await options.fileUploadTasks[name].uploadTask.snapshot
+          .ref;
+
+        console.log(fileURL);
+        uploadUploaded.appendChild(
+          createFileProgressEl(name, uploadedFileProgressBar, {
+            url: `${fileURL}`,
+          })
         );
       }
     );
@@ -141,8 +142,8 @@ export function upload(selector, options = {}) {
     const uploadStatus = document.querySelector('.upload__status');
     if (uploadStatus) {
       uploadStatus.remove();
-      initialized = false;
     }
+    return;
   };
 
   fileUploadArea.addEventListener('dragover', (e) => {
@@ -155,10 +156,17 @@ export function upload(selector, options = {}) {
   inputHidden.addEventListener('change', loadFilesHandler);
   fileUploadArea.addEventListener('drop', loadFilesHandler);
   fileUploadArea.addEventListener('click', inputHiddenTrigger);
-  upload.addEventListener('click', fileDeleteHandler);
-  uploadBtn.addEventListener('click', () => {
+  upload.addEventListener('click', ({ target }) => {
+    if (target.classList.contains('btn-close')) {
+      fileDeleteHandler(target);
+    } else {
+      return;
+    }
+  });
+  uploadBtn.addEventListener('click', async () => {
     if (files.length > 0) {
-      options.onUpload(files, displayUploadedFile);
+      await options.onUpload(files, manageUploadTaskAndDisplay);
+      return;
     } else {
       errorMessageAlert('Please select files before uploading.');
       return;
