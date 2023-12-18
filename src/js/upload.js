@@ -104,38 +104,43 @@ export function upload(selector, options = {}) {
       return;
     }
 
-    options.fileUploadTasks[name].uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progressBars = progressElement.querySelectorAll('.progress__bar');
+    try {
+      options.fileUploadTasks[name].uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progressBars =
+            progressElement.querySelectorAll('.progress__bar');
 
-        const percentProgress = Math.floor(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
+          const percentProgress = Math.floor(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
 
-        progressBars.forEach((progressBar) => {
-          progressBar.style.width = percentProgress + '%';
-        });
-        if (percentProgress === 100) {
-          progressElement.remove();
-          uploadedSubtitle.textContent = 'Uploaded';
+          progressBars.forEach((progressBar) => {
+            progressBar.style.width = percentProgress + '%';
+          });
+          if (percentProgress === 100) {
+            progressElement.remove();
+            uploadedSubtitle.textContent = 'Uploaded';
+          }
+        },
+        (error) => {
+          console.log(error);
+        },
+        async () => {
+          const fileURL = await options.fileUploadTasks[name].uploadTask
+            .snapshot.ref;
+
+          console.log(fileURL);
+          uploadUploaded.appendChild(
+            createFileProgressEl(name, uploadedFileProgressBar, {
+              url: `${fileURL}`,
+            })
+          );
         }
-      },
-      (error) => {
-        console.log(error);
-      },
-      async () => {
-        const fileURL = await options.fileUploadTasks[name].uploadTask.snapshot
-          .ref;
-
-        console.log(fileURL);
-        uploadUploaded.appendChild(
-          createFileProgressEl(name, uploadedFileProgressBar, {
-            url: `${fileURL}`,
-          })
-        );
-      }
-    );
+      );
+    } catch (error) {
+      console.error('Error managing upload task:', error);
+    }
   };
 
   const removeUploadStatus = () => {
