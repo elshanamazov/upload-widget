@@ -4,4 +4,4 @@ The widget supports downloading files subject to specified file type restriction
 
 **Stack**: HTML/CSS/SCSS, JavaScript, Vite, firebase
 
-**Figma**: Click
+**Figma**: [Click](https://www.figma.com/file/EdLwEY392bjqpel5dg3eB1/UPLOAD-FILE?type=design&node-id=0-1&mode=design&t=vkAHh5bJnYtDLXyp-0)
